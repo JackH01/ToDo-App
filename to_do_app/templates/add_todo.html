@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Create ToDo{% endblock %}
+
+{% block content %}
+
+<h2>Create a new ToDo</h2>
+<form action="" method="post">
+  {% csrf_token %}
+  {{ form }}
+  <button type="submit">Submit</button>
+</form>
+
+{% if errorMessage != None %}
+    <p class="error">{{errorMessage}}</p>
+{% endif %}
+
+{% endblock %}
