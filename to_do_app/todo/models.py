@@ -18,5 +18,5 @@ class Task(models.Model):
     title = models.CharField(max_length=255)
     belongsTo = models.ForeignKey(ToDo, on_delete=models.CASCADE)
     done = models.BooleanField()
-    dateCreated = models.DateField(auto_now_add=True)
-    lastModified = models.DateField(auto_now=True)
+    dateCreated = models.DateTimeField(auto_now_add=True)
+    lastModified = models.DateTimeField(auto_now=True)
