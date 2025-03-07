@@ -10,9 +10,9 @@ class ToDo(models.Model):
     # ... manually
     position = models.IntegerField() 
     # ... or automatically
-    dateCreated = models.DateField(auto_now_add=True)
+    dateCreated = models.DateTimeField(auto_now_add=True)
     # Should be the same as the task that was last modified.
-    lastModified = models.DateField() 
+    lastModified = models.DateTimeField() 
 
 class Task(models.Model):
     title = models.CharField(max_length=255)
