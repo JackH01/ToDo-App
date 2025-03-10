@@ -72,16 +72,24 @@ def edit_todo(request, toDoId):
     form = None
     id = request.user.id
     
-    # Get todo by id (will only be 1 todo with each id).
+    # Making sure a todo with the id specified exists.
     try:
         toDo = ToDo.objects.get(id=toDoId)
     # If the id passed via the url is invalid, raise an error.
     except:
         errorMessage = f"""
-        You don't have any ToDos available with id {toDoId}.
+        There is no ToDo with id {toDoId}.
         Please go back to the home page and try again.
         """
-
+    else:
+         # Making sure the user has access to the todo.
+        userIdFromToDo = toDo.user.id
+        if id != userIdFromToDo:
+            errorMessage = f"""
+            You don't have access to this ToDo.
+            Please go back to the home page and try a different one.
+            """
+   
     if errorMessage == None:
         # If this is a POST request, process the form data
         if request.method == "POST":
