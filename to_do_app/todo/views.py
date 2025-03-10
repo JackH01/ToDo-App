@@ -7,9 +7,24 @@ from .forms import ToDoForm
 from .models import ToDo
 
 # Create your views here.
+def home(request):
+
+    # Getting all the ToDos that belong to this user.
+    id = request.user.id
+    toDos = ToDo.objects.filter(user=id).values()
+    print(toDos)
+    print(toDos[0]["title"])
+
+    context = {
+        "toDos": toDos,
+    }
+
+    return render(request, "home.html", context)
+
 def add_todo(request):
     errorMessage = None
     id = request.user.id
+    username = request.user.username
 
     # If this is a POST request, process the form data
     if request.method == "POST":
@@ -30,7 +45,8 @@ def add_todo(request):
             if isToDoUnique:
                 position = len(toDos)
                 toDo = ToDo(title=title, desc=desc, position=position, 
-                    lastModified=datetime.datetime.now(), user_id=id)
+                    lastModified=datetime.datetime.now(), user_id=id,
+                    username=username)
                 toDo.save()
 
                 # Redirect back to home page.

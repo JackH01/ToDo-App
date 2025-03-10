@@ -6,6 +6,7 @@ class ToDo(models.Model):
     title = models.CharField(max_length=255)
     desc = models.CharField(max_length=2550)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    username = models.CharField(max_length=255)
     # Each ToDo can be reordered either:
     # ... manually
     position = models.IntegerField() 
