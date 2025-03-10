@@ -12,9 +12,6 @@ def home(request):
     # Getting all the ToDos that belong to this user.
     id = request.user.id
     toDos = ToDo.objects.filter(user=id).values()
-    print(toDos)
-    print(toDos[0]["title"])
-
     context = {
         "toDos": toDos,
     }
@@ -59,14 +56,9 @@ def add_todo(request):
                 please alter at least one of these values and try again.
                 """
 
-
-
     # If a GET (or any other method) create a blank form.
     else:
         form = ToDoForm()
-
-        # TODO when add edit button add auto fill based on values in database 
-        # if they exist
 
     context = {
         "form": form,
@@ -74,3 +66,51 @@ def add_todo(request):
     }
 
     return render(request, "add_todo.html", context)
+
+def edit_todo(request, toDoId):
+    errorMessage = None
+    form = None
+    id = request.user.id
+    
+    # Get todo by id (will only be 1 todo with each id).
+    try:
+        toDo = ToDo.objects.get(id=toDoId)
+    # If the id passed via the url is invalid, raise an error.
+    except:
+        errorMessage = f"""
+        You don't have any ToDos available with id {toDoId}.
+        Please go back to the home page and try again.
+        """
+
+    if errorMessage == None:
+        # If this is a POST request, process the form data
+        if request.method == "POST":
+            form = ToDoForm(request.POST)
+
+            if form.is_valid():
+
+                formData = form.cleaned_data
+                title = formData["title"]
+                desc = formData["desc"]
+
+                # Edit relevant fields.
+                toDo.title = title
+                toDo.desc = desc
+                toDo.lastModified=datetime.datetime.now()
+
+                toDo.save()
+
+                # Redirect back to home page.
+                return redirect("/")
+                
+        # If a GET (or any other method) create a form with the todo details.
+        else:
+            # Get current todo details
+            form = ToDoForm({"title": toDo.title, "desc": toDo.desc})
+
+    context = {
+        "form": form,
+        "errorMessage": errorMessage,
+    }
+
+    return render(request, "edit_todo.html", context)
