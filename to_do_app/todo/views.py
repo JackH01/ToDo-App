@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 
 import datetime
 
-from .forms import ToDoForm
+from .forms import ToDoForm, TaskForm
 from .models import ToDo, Task
 from .utils import validate_user_todo
 
@@ -71,6 +71,7 @@ def edit_todo(request, toDoId):
     form = None
     id = request.user.id
 
+    # Checking that the user has access to edit this todo.
     toDo, errorMessage = validate_user_todo(id, toDoId)
    
     if errorMessage == None:
@@ -123,3 +124,53 @@ def view_todo(request, toDoId):
     }
 
     return render(request, "view_todo.html", context)
+
+def add_task(request, toDoId):
+    form = None
+    id = request.user.id
+
+    # Checking that the user has access to add to this todo.
+    toDo, errorMessage = validate_user_todo(id, toDoId)
+    if errorMessage == None:
+        # If this is a POST request, process the form data
+        if request.method == "POST":
+            form = TaskForm(request.POST)
+
+            if form.is_valid():
+
+                formData = form.cleaned_data
+                title = formData["title"]
+
+                tasks = Task.objects.filter(belongsTo=toDoId)
+                # Check if an identical task exists for this todo.
+                matchingTasks = Task.objects.filter(belongsTo=toDoId, 
+                    title=title)
+                isTaskUnique = len(matchingTasks) == 0
+                # If the task is unique then add it to the database.
+                if isTaskUnique:
+                    position = len(tasks)
+                    task = Task(title=title, position=position, 
+                        lastModified=datetime.datetime.now(), belongsTo=toDo)
+                    task.save()
+
+                    # Redirect back to view todo page.
+                    return redirect(f"/view_todo/{toDoId}")
+                
+                # Otherwise let the user know what the problem is.
+                else:
+                    errorMessage = """
+                    You already have a Task with this title and combination, 
+                    please alter at least one of these values and try again.
+                    """
+
+        # If a GET (or any other method) create a blank form.
+        else:
+            form = TaskForm()
+
+    context = {
+        "form": form,
+        "toDo": toDo,
+        "errorMessage": errorMessage,
+    }
+
+    return render(request, "add_task.html", context)

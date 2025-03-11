@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+import datetime
+
 # Create your models here.
 class ToDo(models.Model):
     title = models.CharField(max_length=255)
@@ -19,9 +21,30 @@ class ToDo(models.Model):
 class Task(models.Model):
     title = models.CharField(max_length=255)
     belongsTo = models.ForeignKey(ToDo, on_delete=models.CASCADE)
-    done = models.BooleanField()
+    done = models.BooleanField(default=False)
     dateCreated = models.DateTimeField(auto_now_add=True)
     lastModified = models.DateTimeField(auto_now=True)
     position = models.IntegerField() 
 
-    # TODO maybe add on_save method to update belongsTo last modified.
+    # Modifying the save method to update the last modified and number of tasks
+    # of the ToDo that the task belongs to.
+    def save(self, *args, **kwargs):
+        toDo = ToDo.objects.get(id=self.belongsTo.id)
+        toDo.lastModified = datetime.datetime.now()
+        
+        # Checking if the current task exists in the database
+        isNewTask = False
+        try:
+            task = Task.objects.get(id=self.id)
+        except:
+            isNewTask = True
+        
+        # If this is a new task, then also increase the numOfTasks of the 
+        # todo.
+        if isNewTask:
+            numTasks = toDo.numOfTasks
+            toDo.numOfTasks = numTasks + 1
+
+        toDo.save()
+
+        super(Task, self).save(*args, **kwargs)
