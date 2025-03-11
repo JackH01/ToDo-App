@@ -1,13 +1,13 @@
 from .models import ToDo
 
-def validate_user_todo(request, toDoId):
+def validate_user_todo(userId, toDoId):
     """
     Used to validate whether a user should have access to a given todo.
     Prevents users from accessing other todos by specifying their id in the
     url.
 
     Params:
-        - request: django.core.handlers.wsgi.WSGIRequest
+        - userId: int
         - toDoId: int
 
     returns: (errorMessage, toDo)
@@ -21,7 +21,6 @@ def validate_user_todo(request, toDoId):
     """
 
     errorMessage = None
-    id = request.user.id
     toDo = None
     
     # Making sure a todo with the id specified exists.
@@ -36,7 +35,7 @@ def validate_user_todo(request, toDoId):
     else:
          # Making sure the user has access to the todo.
         userIdFromToDo = toDo.user.id
-        if id != userIdFromToDo:
+        if userId != userIdFromToDo:
             errorMessage = f"""
             You don't have access to this ToDo.
             Please go back to the home page and try a different one.
