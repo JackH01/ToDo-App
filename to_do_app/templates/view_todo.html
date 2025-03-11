@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}View ToDo{% endblock %}
+
+{% block content %}
+
+{% if errorMessage != None %}
+    <p class="error">{{errorMessage}}</p>
+
+{% else %}
+
+<h2>{{toDo.title}}</h2>
+<p>{{toDo.desc}}</p>
+<p>Created by: {{toDo.username}}</p>
+<p>Created on: {{toDo.dateCreated}}</p>
+<p>Last modified: {{toDo.lastModified}}</p>
+<p>Number of Tasks: {{toDo.numOfTasks}}</p>
+
+<h2>Tasks:</h2>
+{% for task in tasks %}
+    <h3>{{task.title}}</h3>
+    <p>Created by: {{task.belongsTo.user.username}}</p>
+    <p>Created on: {{task.dateCreated}}</p>
+    <p>Last modified: {{task.lastModified}}</p>
+    <p>Posiiton: {{task.position}}</p>
+{% endfor %}
+
+{% endif %}
+
+<a href="{% url 'home' %}">Home</a>
+
+{% endblock %}

@@ -4,9 +4,9 @@ from django.shortcuts import redirect
 import datetime
 
 from .forms import ToDoForm
-from .models import ToDo
+from .models import ToDo, Task
+from .utils import validate_user_todo
 
-# Create your views here.
 def home(request):
 
     # Getting all the ToDos that belong to this user.
@@ -68,27 +68,10 @@ def add_todo(request):
     return render(request, "add_todo.html", context)
 
 def edit_todo(request, toDoId):
-    errorMessage = None
     form = None
     id = request.user.id
-    
-    # Making sure a todo with the id specified exists.
-    try:
-        toDo = ToDo.objects.get(id=toDoId)
-    # If the id passed via the url is invalid, raise an error.
-    except:
-        errorMessage = f"""
-        There is no ToDo with id {toDoId}.
-        Please go back to the home page and try again.
-        """
-    else:
-         # Making sure the user has access to the todo.
-        userIdFromToDo = toDo.user.id
-        if id != userIdFromToDo:
-            errorMessage = f"""
-            You don't have access to this ToDo.
-            Please go back to the home page and try a different one.
-            """
+
+    toDo, errorMessage = validate_user_todo(id, toDoId)
    
     if errorMessage == None:
         # If this is a POST request, process the form data
@@ -122,3 +105,21 @@ def edit_todo(request, toDoId):
     }
 
     return render(request, "edit_todo.html", context)
+
+def view_todo(request, toDoId):
+    id = request.user.id
+    tasks = None
+    
+    # Checking that the user has access to view this todo.
+    toDo, errorMessage = validate_user_todo(id, toDoId)
+    if errorMessage == None:
+        tasks = Task.objects.filter(belongsTo=toDoId)
+
+    
+    context = {
+        "errorMessage": errorMessage,
+        "toDo": toDo,
+        "tasks": tasks,
+    }
+
+    return render(request, "view_todo.html", context)
