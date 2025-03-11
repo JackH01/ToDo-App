@@ -13,7 +13,8 @@ class ToDo(models.Model):
     # ... or automatically
     dateCreated = models.DateTimeField(auto_now_add=True)
     # Should be the same as the task that was last modified.
-    lastModified = models.DateTimeField() 
+    lastModified = models.DateTimeField()
+    numOfTasks = models.IntegerField(default=0)
 
 class Task(models.Model):
     title = models.CharField(max_length=255)
@@ -21,3 +22,6 @@ class Task(models.Model):
     done = models.BooleanField()
     dateCreated = models.DateTimeField(auto_now_add=True)
     lastModified = models.DateTimeField(auto_now=True)
+    position = models.IntegerField() 
+
+    # TODO maybe add on_save method to update belongsTo last modified.
