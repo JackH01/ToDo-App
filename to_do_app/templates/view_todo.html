@@ -23,6 +23,12 @@
     <p>Created on: {{task.dateCreated}}</p>
     <p>Last modified: {{task.lastModified}}</p>
     <p>Posiiton: {{task.position}}</p>
+    <p>Done: {{task.done}}</p>
+    {% if task.done %}
+        <a href="/view_todo/{{toDo.id}}_complete{{task.id}}">Uncomplete</a>
+    {% else %}
+        <a href="/view_todo/{{toDo.id}}_complete{{task.id}}">Complete</a>
+    {% endif %}
 {% endfor %}
 <a href="add_task/{{toDo.id}}">Add Task</a>
 

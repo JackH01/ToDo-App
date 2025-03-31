@@ -1,4 +1,4 @@
-from .models import ToDo
+from .models import ToDo, Task
 
 def validate_user_todo(userId, toDoId):
     """
@@ -42,3 +42,46 @@ def validate_user_todo(userId, toDoId):
             """
     
     return (toDo, errorMessage)
+
+def validate_user_task(userId, taskId):
+    """
+    Used to validate whether a user should have access to a given task.
+    Prevents users from accessing other tasks by specifying their id in the
+    url.
+
+    Params:
+        - userId: int
+        - taskId: int
+
+    returns: (errorMessage, task)
+        - errorMessage
+            - A string with the error message if the user cannot access the 
+            task.
+            - None if the user should be able to access the task.
+        - task
+            - models.Task if the task esixts
+            - None if it doesn't
+    """
+
+    errorMessage = None
+    task = None
+
+    # Making sure a task with the id specified exists.
+    try:
+        task = Task.objects.get(id=taskId)
+    # If the id passed via the url is invalid, raise an error.
+    except:
+        errorMessage = f"""
+        There is no Task with id {taskId}.
+        Please go back to the home page and try again.
+        """
+    else:
+         # Making sure the user has access to the task.
+        userIdFromTask = task.belongsTo.user.id
+        if userId != userIdFromTask:
+            errorMessage = f"""
+            You don't have access to this Task.
+            Please go back to the home page and try a different one.
+            """
+    
+    return (task, errorMessage)

@@ -5,7 +5,7 @@ import datetime
 
 from .forms import ToDoForm, TaskForm
 from .models import ToDo, Task
-from .utils import validate_user_todo
+from .utils import validate_user_todo, validate_user_task
 
 def home(request):
 
@@ -107,16 +107,29 @@ def edit_todo(request, toDoId):
 
     return render(request, "edit_todo.html", context)
 
-def view_todo(request, toDoId):
+def view_todo(request, toDoId, taskId=None):
     id = request.user.id
     tasks = None
     
     # Checking that the user has access to view this todo.
     toDo, errorMessage = validate_user_todo(id, toDoId)
-    if errorMessage == None:
+    if errorMessage == None and taskId == None:
         tasks = Task.objects.filter(belongsTo=toDoId)
 
-    
+    # If a task id was specified, then we want to mark the task as complete.
+    elif errorMessage == None and taskId != None:
+
+        # Checking that the user has access to complete this task.
+        task, errorMessage = validate_user_task(id, taskId)
+        if errorMessage == None:
+
+            # Toggling the task as done/not done.
+            task.done = not task.done
+            task.save()
+
+        # Get new list of tasks with the current task updated.
+        tasks = Task.objects.filter(belongsTo=toDoId)
+
     context = {
         "errorMessage": errorMessage,
         "toDo": toDo,
