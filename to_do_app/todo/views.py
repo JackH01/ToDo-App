@@ -107,7 +107,7 @@ def edit_todo(request, toDoId):
 
     return render(request, "edit_todo.html", context)
 
-def view_todo(request, toDoId, taskId=None):
+def view_todo(request, toDoId, taskId=None, remove=False):
     id = request.user.id
     tasks = None
     
@@ -122,12 +122,20 @@ def view_todo(request, toDoId, taskId=None):
         # Checking that the user has access to complete this task.
         task, errorMessage = validate_user_task(id, taskId)
         if errorMessage == None:
-
+            
+            if remove:
+                task.delete()
+            
             # Toggling the task as done/not done.
-            task.done = not task.done
-            task.save()
+            else:
+                task.done = not task.done
+                task.save()
 
-        # Get new list of tasks with the current task updated.
+        # The last modified and (posibly the) number of tasks will have been 
+        # changed, so get the todo from the database again.
+        toDo = ToDo.objects.get(id=toDoId)
+
+        # Get new list of tasks with the current task updated/deleted.
         tasks = Task.objects.filter(belongsTo=toDoId)
 
     context = {
@@ -187,3 +195,6 @@ def add_task(request, toDoId):
     }
 
     return render(request, "add_task.html", context)
+
+def remove_task(request, toDoId, taskId):
+    return view_todo(request, toDoId, taskId, remove=True)

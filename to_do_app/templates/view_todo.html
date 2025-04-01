@@ -26,6 +26,8 @@
     <p>Done: {{task.done}}</p>
     {% if task.done %}
         <a href="/view_todo/{{toDo.id}}_complete{{task.id}}">Uncomplete</a>
+        <a href="/view_todo/{{toDo.id}}_remove{{task.id}}">Remove</a> 
+        <!-- TODO ^ Add javascript / JQuery confirmation to this link -->
     {% else %}
         <a href="/view_todo/{{toDo.id}}_complete{{task.id}}">Complete</a>
     {% endif %}

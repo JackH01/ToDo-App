@@ -9,5 +9,6 @@ urlpatterns = [
     path("edit_todo/<int:toDoId>", views.edit_todo, name="edit_todo"),
     path("view_todo/<int:toDoId>", views.view_todo, name="view_todo"),
     path("view_todo/add_task/<int:toDoId>", views.add_task, name="add_task"),
-    path("view_todo/<int:toDoId>_complete<int:taskId>", views.view_todo, name="view_todo"),
+    path("view_todo/<int:toDoId>_complete<int:taskId>", views.view_todo, name="view_todo_complete"),
+    path("view_todo/<int:toDoId>_remove<int:taskId>", views.remove_task, name="remove_task"),
 ]
