@@ -36,6 +36,9 @@ class Task(models.Model):
         isNewTask = False
         try:
             task = Task.objects.get(id=self.id)
+
+            # If this isn't a new task, then change the last modified field.
+            self.lastModified = datetime.datetime.now()
         except:
             isNewTask = True
         
@@ -48,3 +51,16 @@ class Task(models.Model):
         toDo.save()
 
         super(Task, self).save(*args, **kwargs)
+
+    # Modifying the delete method to update the last modified and number of tasks
+    # of the ToDo that the task belongs to.
+    def delete(self, *args, **kwargs):
+        toDo = ToDo.objects.get(id=self.belongsTo.id)
+        toDo.lastModified = datetime.datetime.now()
+
+        numTasks = toDo.numOfTasks
+        toDo.numOfTasks = numTasks - 1
+
+        toDo.save()
+
+        super(Task, self).delete(*args, **kwargs)
