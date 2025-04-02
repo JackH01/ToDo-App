@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Task{% endblock %}
+
+{% block content %}
+
+<h2>Edit a Task</h2>
+
+{% if form != None %}
+<form action="" method="post">
+  {% csrf_token %}
+  {{ form }}
+  <p>Created by: {{task.belongsTo.user.username}}</p>
+  <p>Created on: {{task.dateCreated}}</p>
+  <p>Last modified: {{task.lastModified}}</p>
+  <p>Posiiton: {{task.position}}</p>
+  <p>Done: {{task.done}}</p>
+  <button type="submit">Submit</button>
+</form>
+{% endif %}
+
+{% if errorMessage != None %}
+    <p class="error">{{errorMessage}}</p>
+{% endif %}
+
+<a href="{% url 'home' %}">Home</a>
+
+{% endblock %}

@@ -198,3 +198,45 @@ def add_task(request, toDoId):
 
 def remove_task(request, toDoId, taskId):
     return view_todo(request, toDoId, taskId, remove=True)
+
+def edit_task(request, taskId):
+    id = request.user.id
+    errorMessage = None
+
+    # Checking that the user has access to this task (and that the task exists).
+    task, errorMessage = validate_user_task(id, taskId)
+    if errorMessage == None:
+        # If this is a POST request, process the form data
+        if request.method == "POST":
+            form = TaskForm(request.POST)
+
+            if form.is_valid():
+
+                formData = form.cleaned_data
+                title = formData["title"]
+
+                # Edit relevant fields.
+                task.title = title
+                task.save()
+
+                # Redirect back to the view todo page.
+                toDoId = task.belongsTo.id
+                return redirect(f"/view_todo/{toDoId}")
+                
+        # If a GET (or any other method) create a form with the task details.
+        else:
+            # Get current task details
+            form = TaskForm({"title": task.title})
+
+    context = {
+        "form": form,
+        "errorMessage": errorMessage,
+        "task": task,
+    }
+
+    return render(request, "edit_task.html", context)
+
+# TODO add ability to edit task name.
+# TODO add ability to share todos with other users
+# ^ add linker table to allow sharing, only author can share, let
+# ^^ user see all their tasks and the ones shared with them.
