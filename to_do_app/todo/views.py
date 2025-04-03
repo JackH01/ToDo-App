@@ -11,7 +11,8 @@ def home(request):
 
     # Getting all the ToDos that belong to this user.
     id = request.user.id
-    toDos = ToDo.objects.filter(user=id).values()
+    toDos = ToDo.objects.filter(user=id)
+
     context = {
         "toDos": toDos,
     }
@@ -42,8 +43,7 @@ def add_todo(request):
             if isToDoUnique:
                 position = len(toDos)
                 toDo = ToDo(title=title, desc=desc, position=position, 
-                    lastModified=datetime.datetime.now(), user_id=id,
-                    username=username)
+                    lastModified=datetime.datetime.now(), user_id=id)
                 toDo.save()
 
                 # Redirect back to home page.

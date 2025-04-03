@@ -8,7 +8,6 @@ class ToDo(models.Model):
     title = models.CharField(max_length=255)
     desc = models.CharField(max_length=2550)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    username = models.CharField(max_length=255) # TODO remove this later
     # Each ToDo can be reordered either:
     # ... manually
     position = models.IntegerField() 
@@ -17,6 +16,9 @@ class ToDo(models.Model):
     # Should be the same as the task that was last modified.
     lastModified = models.DateTimeField()
     numOfTasks = models.IntegerField(default=0)
+
+    # TODO edit save method to adjust last modified field.
+    # ^ also change the code in views.py that does this manually.
 
 class Task(models.Model):
     title = models.CharField(max_length=255)
