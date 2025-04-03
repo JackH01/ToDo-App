@@ -42,8 +42,7 @@ def add_todo(request):
             # If the ToDo is unique then add it to the database.
             if isToDoUnique:
                 position = len(toDos)
-                toDo = ToDo(title=title, desc=desc, position=position, 
-                    lastModified=datetime.datetime.now(), user_id=id)
+                toDo = ToDo(title=title, desc=desc, position=position, user_id=id)
                 toDo.save()
 
                 # Redirect back to home page.
@@ -88,7 +87,6 @@ def edit_todo(request, toDoId):
                 # Edit relevant fields.
                 toDo.title = title
                 toDo.desc = desc
-                toDo.lastModified=datetime.datetime.now()
 
                 toDo.save()
 

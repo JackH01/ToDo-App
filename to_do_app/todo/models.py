@@ -17,8 +17,12 @@ class ToDo(models.Model):
     lastModified = models.DateTimeField()
     numOfTasks = models.IntegerField(default=0)
 
-    # TODO edit save method to adjust last modified field.
-    # ^ also change the code in views.py that does this manually.
+    # Modifying the save method to update the last modified when saving.
+    def save(self, *args, **kwargs):
+        self.lastModified = datetime.datetime.now()
+
+        super(ToDo, self).save(*args, **kwargs)
+        
 
 class Task(models.Model):
     title = models.CharField(max_length=255)
