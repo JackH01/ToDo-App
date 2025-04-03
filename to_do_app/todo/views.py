@@ -7,14 +7,30 @@ from .forms import ToDoForm, TaskForm
 from .models import ToDo, Task
 from .utils import validate_user_todo, validate_user_task
 
-def home(request):
-
-    # Getting all the ToDos that belong to this user.
+def home(request, toDoId=None, remove=False):
     id = request.user.id
-    toDos = ToDo.objects.filter(user=id)
+    toDos = None
+    errorMessage = None
+
+    if toDoId == None:
+        # Getting all the ToDos that belong to this user.
+        id = request.user.id
+        toDos = ToDo.objects.filter(user=id)
+
+    elif remove:
+
+        # Checking that the user has access to remove this todo.
+        toDo, errorMessage = validate_user_todo(id, toDoId)
+        if errorMessage == None:
+            toDo = ToDo.objects.get(id=toDoId)
+            toDo.delete()
+
+            # Updating the list of toDos.
+            toDos = ToDo.objects.filter(user=id)
 
     context = {
         "toDos": toDos,
+        "errorMessage": errorMessage,
     }
 
     return render(request, "home.html", context)
@@ -144,6 +160,9 @@ def view_todo(request, toDoId, taskId=None, remove=False):
 
     return render(request, "view_todo.html", context)
 
+def remove_todo(request, toDoId):
+    return home(request, toDoId, remove=True)
+
 def add_task(request, toDoId):
     form = None
     id = request.user.id
@@ -234,7 +253,6 @@ def edit_task(request, taskId):
 
     return render(request, "edit_task.html", context)
 
-# TODO add ability to edit task name.
 # TODO add ability to share todos with other users
 # ^ add linker table to allow sharing, only author can share, let
 # ^^ user see all their tasks and the ones shared with them.

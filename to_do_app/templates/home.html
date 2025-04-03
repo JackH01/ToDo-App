@@ -5,35 +5,42 @@
 {% block content %}
 
 {% if user.is_authenticated %}
-<p>Hi {{ user.username }}!</p>
-<p><a href="{% url 'password_change' %}">Password Change</a></p>
-<form action="{% url 'logout' %}" method="post">
-  {% csrf_token %}
-  <button type="submit">Log Out</button>
-</form>
+  <p>Hi {{ user.username }}!</p>
+  <p><a href="{% url 'password_change' %}">Password Change</a></p>
+  <form action="{% url 'logout' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Log Out</button>
+  </form>
 
-<a href="{% url 'add_todo' %}">Add TODO</a>
-
-{% for toDo in toDos %}
-
-<div class="todo">
-  <h2>{{toDo.title}}</h2>
-  <p>{{toDo.desc}}</p>
-  <p>Created by: {{toDo.user.username}}</p>
-  <p>Created on: {{toDo.dateCreated}}</p>
-  <p>Last modified: {{toDo.lastModified}}</p>
-  <p>Position: {{toDo.position}}</p>
-  <p>Number of Tasks: {{toDo.numOfTasks}}</p>
-  <a href="view_todo/{{toDo.id}}">View</a>
-  <a href="edit_todo/{{toDo.id}}">Edit</a>
-</div>
-
-{% endfor %}
+{% if errorMessage != None %}
+  <p class="error">{{errorMessage}}</p>
 
 {% else %}
-<p>You are not logged in</p>
-<a href="{% url 'login' %}">Log In</a>
+  <a href="{% url 'add_todo' %}">Add TODO</a>
 
+  {% for toDo in toDos %}
+
+  <div class="todo">
+    <h2>{{toDo.title}}</h2>
+    <p>{{toDo.desc}}</p>
+    <p>Created by: {{toDo.user.username}}</p>
+    <p>Created on: {{toDo.dateCreated}}</p>
+    <p>Last modified: {{toDo.lastModified}}</p>
+    <p>Position: {{toDo.position}}</p>
+    <p>Number of Tasks: {{toDo.numOfTasks}}</p>
+    <a href="view_todo/{{toDo.id}}">View</a>
+    <a href="edit_todo/{{toDo.id}}">Edit</a>
+    <a href="_remove{{toDo.id}}">Remove</a>
+    <!-- TODO add remove confirmation using JQuery -->
+  </div>
+
+  {% endfor %}
+
+  {% endif %}
+
+{% else %}
+  <p>You are not logged in</p>
+  <a href="{% url 'login' %}">Log In</a>
 
 {% endif %}
 {% endblock %}
