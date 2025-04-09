@@ -13,4 +13,5 @@ urlpatterns = [
     path("view_todo/<int:toDoId>_complete<int:taskId>", views.view_todo, name="view_todo_complete"),
     path("view_todo/<int:toDoId>_remove<int:taskId>", views.remove_task, name="remove_task"),
     path("view_todo/edit_task/<int:taskId>", views.edit_task, name="edit_task"),
+    path("share_todo/<int:toDoId>", views.share_todo, name="share_todo"),
 ]

@@ -70,3 +70,11 @@ class Task(models.Model):
         toDo.save()
 
         super(Task, self).delete(*args, **kwargs)
+
+class SharedWith(models.Model):
+    """
+    An intermediate table/model to allow for the many-to-many relationship
+    between the User and ToDo model.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    todo = models.ForeignKey(ToDo, on_delete=models.CASCADE)

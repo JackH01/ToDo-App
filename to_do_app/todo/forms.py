@@ -6,3 +6,6 @@ class ToDoForm(forms.Form):
 
 class TaskForm(forms.Form):
     title = forms.CharField(label="Title", max_length=255)
+
+class ShareForm(forms.Form):
+    username = forms.CharField(label="username", max_length=255)

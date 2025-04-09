@@ -3,8 +3,8 @@ from django.shortcuts import redirect
 
 import datetime
 
-from .forms import ToDoForm, TaskForm
-from .models import ToDo, Task
+from .forms import ToDoForm, TaskForm, ShareForm
+from .models import ToDo, Task, User, SharedWith
 from .utils import validate_user_todo, validate_user_task
 
 def home(request, toDoId=None, remove=False):
@@ -163,6 +163,51 @@ def view_todo(request, toDoId, taskId=None, remove=False):
 def remove_todo(request, toDoId):
     return home(request, toDoId, remove=True)
 
+def share_todo(request, toDoId):
+    id = request.user.id
+
+     # Checking that the user has access to share this todo.
+    toDo, errorMessage = validate_user_todo(id, toDoId)
+    if errorMessage == None:
+        
+        if request.method == "POST":
+
+            form = ShareForm(request.POST)
+
+            if form.is_valid():
+
+                formData = form.cleaned_data
+                shareUsername = formData["username"]
+                
+                # Check if a user with this username exists
+                try:
+                    shareUser = User.objects.get(username=shareUsername)
+
+                    # If the todo is already shared with this user, then do nothing
+                    sharedWithUser = SharedWith.objects.filter(user=shareUser.id, todo=toDo.id)
+
+                    if not sharedWithUser: # The query set is empty
+                        sharedWith = SharedWith(user=shareUser, todo=toDo)
+                        sharedWith.save()
+                    else:
+                        errorMessage = f"This todo has already been shared with {shareUsername}"
+
+                except (User.DoesNotExist):
+                    errorMessage = f"There is no user with username {shareUsername}"
+                    
+        # GET request
+        else:
+            form = ShareForm()
+
+    context = {
+        "form": form,
+        "toDo": toDo,
+        "errorMessage": errorMessage,
+    }
+
+    return render(request, "share_todo.html", context)
+
+
 def add_task(request, toDoId):
     form = None
     id = request.user.id
@@ -255,4 +300,12 @@ def edit_task(request, taskId):
 
 # TODO add ability to share todos with other users
 # ^ add linker table to allow sharing, only author can share, let
-# ^^ user see all their tasks and the ones shared with them.
+# ^^ user see all their todos and the ones shared with them.
+
+# TODO add ability to manage who a ToDo is shared with (also
+# ^ view which users any given todo is shared with).
+
+# TODO make it so users need to confirm that they would like
+# ^ a todo to be shared with them (i.e. accept/reject).
+# ^^ or maybe just let them choose to 'un'share todos that
+# ^^^ have been shared with them.

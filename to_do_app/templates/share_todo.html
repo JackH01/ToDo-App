@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Share ToDo{% endblock %}
+
+{% block content %}
+
+<h2>{{toDo.title}}</h2>
+<p>{{toDo.desc}}</p>
+<p>Created by: {{toDo.user.username}}</p>
+<p>Created on: {{toDo.dateCreated}}</p>
+<p>Last modified: {{toDo.lastModified}}</p>
+<p>Number of Tasks: {{toDo.numOfTasks}}</p>
+
+<h2>Enter the username of the user you would like to share the task with:</h2>
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <button type="submit">Share</button>
+</form>
+
+{% if errorMessage != None %}
+    <p class="error">{{errorMessage}}</p>
+{% endif %}
+
+<a href="{% url 'home' %}">Home</a>
+
+{% endblock %}

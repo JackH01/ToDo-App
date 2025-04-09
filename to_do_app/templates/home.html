@@ -32,6 +32,10 @@
     <a href="edit_todo/{{toDo.id}}">Edit</a>
     <a href="_remove{{toDo.id}}">Remove</a>
     <!-- TODO add remove confirmation using JQuery -->
+    {% if toDo.user.id == user.id %}
+      <a href = "share_todo/{{toDo.id}}">Share</a>
+    {% endif %}
+    <!-- TODO maybe remove the share todo link and get a popup using jQuery? -->
   </div>
 
   {% endfor %}
