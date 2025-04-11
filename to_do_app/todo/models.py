@@ -17,12 +17,23 @@ class ToDo(models.Model):
     lastModified = models.DateTimeField()
     numOfTasks = models.IntegerField(default=0)
 
+    sharedUsers = []
+    sharedUserStr = ""
+
     # Modifying the save method to update the last modified when saving.
     def save(self, *args, **kwargs):
         self.lastModified = datetime.datetime.now()
 
         super(ToDo, self).save(*args, **kwargs)
-        
+
+    def genShareUserList(self):
+        """
+        Call to generate the shareUsers and sharedUserStr attribute of each todo with a list
+        of Users that the todo is shared with.
+        """
+        sharedUserIdList = SharedWith.objects.filter(todo=self).values_list("user_id")
+        self.sharedUsers = [User.objects.get(id=userId[0]) for userId in sharedUserIdList]
+
 
 class Task(models.Model):
     title = models.CharField(max_length=255)

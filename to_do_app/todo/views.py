@@ -28,6 +28,12 @@ def home(request, toDoId=None, remove=False):
             # Updating the list of toDos.
             toDos = ToDo.objects.filter(user=id)
 
+    # If this is the owner of the todo, generate a list of users
+    # the todo is shared with.
+    for toDo in toDos:
+        if id == toDo.user.id:
+            toDo.genShareUserList()
+
     context = {
         "toDos": toDos,
         "errorMessage": errorMessage,
