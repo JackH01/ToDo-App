@@ -6,6 +6,7 @@ from . import views
 urlpatterns = [
     path("", views.home, name="home"),
     path("_remove<int:toDoId>", views.remove_todo, name="remove_todo"),
+    path("_unshare<int:toDoId>_<int:sharedUserId>", views.unshare_todo, name="unshare_todo"),
     path("add_todo", views.add_todo, name="add_todo"),
     path("edit_todo/<int:toDoId>", views.edit_todo, name="edit_todo"),
     path("view_todo/<int:toDoId>", views.view_todo, name="view_todo"),

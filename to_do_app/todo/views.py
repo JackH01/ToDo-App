@@ -7,26 +7,12 @@ from .forms import ToDoForm, TaskForm, ShareForm
 from .models import ToDo, Task, User, SharedWith
 from .utils import validate_user_todo, validate_user_task
 
-def home(request, toDoId=None, remove=False):
+def home(request, errorMessage=None):
     id = request.user.id
     toDos = None
-    errorMessage = None
 
-    if toDoId == None:
-        # Getting all the ToDos that belong to this user.
-        id = request.user.id
-        toDos = ToDo.objects.filter(user=id)
-
-    elif remove:
-
-        # Checking that the user has access to remove this todo.
-        toDo, errorMessage = validate_user_todo(id, toDoId)
-        if errorMessage == None:
-            toDo = ToDo.objects.get(id=toDoId)
-            toDo.delete()
-
-            # Updating the list of toDos.
-            toDos = ToDo.objects.filter(user=id)
+    # Getting all the ToDos that belong to this user.
+    toDos = ToDo.objects.filter(user=id)
 
     # If this is the owner of the todo, generate a list of users
     # the todo is shared with.
@@ -167,7 +153,18 @@ def view_todo(request, toDoId, taskId=None, remove=False):
     return render(request, "view_todo.html", context)
 
 def remove_todo(request, toDoId):
-    return home(request, toDoId, remove=True)
+    id = request.user.id
+    
+    # Checking that the user has access to remove this todo.
+    toDo, errorMessage = validate_user_todo(id, toDoId)
+    if errorMessage == None:
+        toDo = ToDo.objects.get(id=toDoId)
+        toDo.delete()
+
+        # Updating the list of toDos.
+        toDos = ToDo.objects.filter(user=id)
+
+    return home(request, errorMessage=errorMessage)
 
 def share_todo(request, toDoId):
     id = request.user.id
@@ -213,6 +210,8 @@ def share_todo(request, toDoId):
 
     return render(request, "share_todo.html", context)
 
+def unshare_todo():
+    pass
 
 def add_task(request, toDoId):
     form = None

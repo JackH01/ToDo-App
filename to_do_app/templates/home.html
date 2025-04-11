@@ -37,7 +37,7 @@
       <p>Shared with:</p>
       <ul> 
         {% for user in toDo.sharedUsers %}
-          <li>{{user.username}}</li>
+          <li>{{user.username}} <a href="_unshare{{toDo.id}}_{{user.id}}">Unshare</a></li>
         {% endfor %}
       </ul>
     {% endif %}
