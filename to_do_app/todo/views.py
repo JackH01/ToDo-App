@@ -210,8 +210,22 @@ def share_todo(request, toDoId):
 
     return render(request, "share_todo.html", context)
 
-def unshare_todo():
-    pass
+def unshare_todo(request, toDoId, sharedUserId):
+    id = request.user.id
+
+    # Checking that the user has access to unshare this todo.
+    toDo, errorMessage = validate_user_todo(id, toDoId)
+    if errorMessage == None:
+
+        # Checking that the todo is shared with the specified user.
+        sharedWithUser = SharedWith.objects.filter(user=sharedUserId, todo=toDoId)
+
+        if not sharedWithUser: # The query set is empty
+            errorMessage = f"The todo specified is not shared with the user"
+        else:
+            sharedWithUser[0].delete()
+
+    return home(request, errorMessage=errorMessage)
 
 def add_task(request, toDoId):
     form = None
