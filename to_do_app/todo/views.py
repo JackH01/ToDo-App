@@ -14,6 +14,14 @@ def home(request, errorMessage=None):
     # Getting all the ToDos that belong to this user.
     toDos = ToDo.objects.filter(user=id)
 
+    # Getting all the ToDos that are shared with this user.
+    sharedToDoIds = list(SharedWith.objects.filter(user=id).values_list("todo", flat=True))
+    sharedToDos = ToDo.objects.filter(pk__in=sharedToDoIds)
+
+    # Combining both query sets.
+    toDos = toDos | sharedToDos
+    print(toDos)
+
     # If this is the owner of the todo, generate a list of users
     # the todo is shared with.
     for toDo in toDos:
