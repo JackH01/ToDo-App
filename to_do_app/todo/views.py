@@ -20,7 +20,6 @@ def home(request, errorMessage=None):
 
     # Combining both query sets.
     toDos = toDos | sharedToDos
-    print(toDos)
 
     # If this is the owner of the todo, generate a list of users
     # the todo is shared with.
@@ -125,6 +124,13 @@ def view_todo(request, toDoId, taskId=None, remove=False):
     id = request.user.id
     tasks = None
     
+    # TODO let users view shared todos without allowing them to 
+    # remove/edit them? or do we want users to be able to remove/
+    # edit shared todos? Might need to add a permission/column to the SharedWith
+    # file such as read, amend, write? Then add an option to specify this as a drop down
+    # on the share todo page? Would we put the permission in a different database
+    # eg 1 = read, 2 = amend, 3 = write? Then we would just join them?
+
     # Checking that the user has access to view this todo.
     toDo, errorMessage = validate_user_todo(id, toDoId)
     if errorMessage == None and taskId == None:
@@ -189,22 +195,28 @@ def share_todo(request, toDoId):
 
                 formData = form.cleaned_data
                 shareUsername = formData["username"]
-                
-                # Check if a user with this username exists
-                try:
-                    shareUser = User.objects.get(username=shareUsername)
 
-                    # If the todo is already shared with this user, then do nothing
-                    sharedWithUser = SharedWith.objects.filter(user=shareUser.id, todo=toDo.id)
+                # Make sure the user isn't trying to share the todo with themself.
+                isSharingWithSelf = shareUsername == toDo.user.username
 
-                    if not sharedWithUser: # The query set is empty
-                        sharedWith = SharedWith(user=shareUser, todo=toDo)
-                        sharedWith.save()
-                    else:
-                        errorMessage = f"This todo has already been shared with {shareUsername}"
+                if not isSharingWithSelf:
+                    # Check if a user with this username exists
+                    try:
+                        shareUser = User.objects.get(username=shareUsername)
 
-                except (User.DoesNotExist):
-                    errorMessage = f"There is no user with username {shareUsername}"
+                        # If the todo is already shared with this user, then do nothing
+                        sharedWithUser = SharedWith.objects.filter(user=shareUser.id, todo=toDo.id)
+
+                        if not sharedWithUser: # The query set is empty
+                            sharedWith = SharedWith(user=shareUser, todo=toDo)
+                            sharedWith.save()
+                        else:
+                            errorMessage = f"This todo has already been shared with {shareUsername}"
+
+                    except (User.DoesNotExist):
+                        errorMessage = f"There is no user with username {shareUsername}"
+                else:
+                    errorMessage = "You cannot share a ToDo with yourself"
                     
         # GET request
         else:
