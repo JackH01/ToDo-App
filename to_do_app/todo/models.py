@@ -2,6 +2,12 @@ from django.db import models
 from django.contrib.auth.models import User
 
 import datetime
+from enum import Enum
+
+class AccessLevel(models.TextChoices):
+    READ = "R", "Read"
+    WRITE = "W", "Write"
+
 
 # Create your models here.
 class ToDo(models.Model):
@@ -89,3 +95,7 @@ class SharedWith(models.Model):
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     todo = models.ForeignKey(ToDo, on_delete=models.CASCADE)
+    access = models.CharField(
+        max_length=1, 
+        choices=AccessLevel.choices,
+        default=AccessLevel.READ)
