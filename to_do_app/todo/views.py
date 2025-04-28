@@ -28,9 +28,7 @@ def home(request, errorMessage=None):
         if id == toDo.user.id:
             toDo.genShareUserList()
         else:
-            sharedWith = SharedWith.objects.filter(todo=toDo.id)[0]
-            accessLevel = sharedWith.access
-            toDo.setAccessLevel(accessLevel)
+            toDo.updateSharedAccessLevel(id)
     context = {
         "toDos": toDos,
         "errorMessage": errorMessage,

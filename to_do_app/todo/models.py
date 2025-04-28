@@ -42,8 +42,12 @@ class ToDo(models.Model):
         sharedUserIdList = SharedWith.objects.filter(todo=self).values_list("user_id")
         self.sharedUsers = [User.objects.get(id=userId[0]) for userId in sharedUserIdList]
 
-    def setAccessLevel(self, accessLevel):
-        self.accessLevel = accessLevel
+    def updateSharedAccessLevel(self, user_id):
+        """
+        Call to update the access level of a shared todo.
+        """
+        sharedWith = SharedWith.objects.filter(todo=self.id, user=user_id)[0]
+        self.accessLevel = sharedWith.access
 
 
 class Task(models.Model):
