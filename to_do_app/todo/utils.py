@@ -84,7 +84,13 @@ def validate_user_task(userId, taskId):
     else:
          # Making sure the user has access to the task.
         userIdFromTask = task.belongsTo.user.id
-        if userId != userIdFromTask:
+        # - Checking they either own the todo or...
+        userOwnsToDo = userId == userIdFromTask
+        # - ... have the todo shared with them.
+        sharedWith = SharedWith.objects.filter(todo=task.belongsTo.id, user=userId)
+        toDoSharedWithUser = sharedWith.exists()
+
+        if (not userOwnsToDo) and (not toDoSharedWithUser):
             errorMessage = f"""
             You don't have access to this Task.
             Please go back to the home page and try a different one.
