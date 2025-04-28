@@ -82,18 +82,15 @@ def validate_user_task(userId, taskId):
         Please go back to the home page and try again.
         """
     else:
-         # Making sure the user has access to the task.
-        userIdFromTask = task.belongsTo.user.id
-        # - Checking they either own the todo or...
-        userOwnsToDo = userId == userIdFromTask
-        # - ... have the todo shared with them.
-        sharedWith = SharedWith.objects.filter(todo=task.belongsTo.id, user=userId)
-        toDoSharedWithUser = sharedWith.exists()
-
-        if (not userOwnsToDo) and (not toDoSharedWithUser):
-            errorMessage = f"""
-            You don't have access to this Task.
-            Please go back to the home page and try a different one.
-            """
+        # Making sure the user has access to the task.
+        # Every task shares the same access level as its parent todo, 
+        # so we can just call validate_user_todo.
+        todo_id = task.belongsTo.id
+        _, errorMessage = validate_user_todo(userId, todo_id)
     
     return (task, errorMessage)
+
+def validate_write_access(userId, toDoId):
+    # NOTE: tasks that belong to a todo have the same access level
+    # as the todo, so only need to write this function once for the task.
+    pass
