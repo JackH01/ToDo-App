@@ -49,6 +49,7 @@ class ToDo(models.Model):
 class Task(models.Model):
     title = models.CharField(max_length=255)
     belongsTo = models.ForeignKey(ToDo, on_delete=models.CASCADE)
+    createdBy = models.ForeignKey(User, on_delete=models.CASCADE)
     done = models.BooleanField(default=False)
     dateCreated = models.DateTimeField(auto_now_add=True)
     lastModified = models.DateTimeField(auto_now=True)
