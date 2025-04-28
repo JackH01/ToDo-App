@@ -29,8 +29,9 @@
     <p>Last modified: {{toDo.lastModified}}</p>
     <p>Position: {{toDo.position}}</p>
     <p>Number of Tasks: {{toDo.numOfTasks}}</p>
+    <p>Access Level: {{toDo.accessLevel}}</p>
     <a href="view_todo/{{toDo.id}}">View</a>
-    {% if toDo.user.id == user.id %}
+    {% if toDo.accessLevel == "W" %}
       <a href="edit_todo/{{toDo.id}}">Edit</a>
       <a href="_remove{{toDo.id}}">Remove</a>
       <!-- TODO add remove confirmation using JQuery -->

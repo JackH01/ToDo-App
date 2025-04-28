@@ -15,7 +15,8 @@ def home(request, errorMessage=None):
     toDos = ToDo.objects.filter(user=id)
 
     # Getting all the ToDos that are shared with this user.
-    sharedToDoIds = list(SharedWith.objects.filter(user=id).values_list("todo", flat=True))
+    sharedWithUser = SharedWith.objects.filter(user=id)
+    sharedToDoIds = list(sharedWithUser.values_list("todo", flat=True))
     sharedToDos = ToDo.objects.filter(pk__in=sharedToDoIds)
 
     # Combining both query sets.
@@ -26,7 +27,10 @@ def home(request, errorMessage=None):
     for toDo in toDos:
         if id == toDo.user.id:
             toDo.genShareUserList()
-
+        else:
+            sharedWith = SharedWith.objects.filter(todo=toDo.id)[0]
+            accessLevel = sharedWith.access
+            toDo.setAccessLevel(accessLevel)
     context = {
         "toDos": toDos,
         "errorMessage": errorMessage,

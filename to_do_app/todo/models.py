@@ -26,6 +26,8 @@ class ToDo(models.Model):
     sharedUsers = []
     sharedUserStr = ""
 
+    accessLevel = AccessLevel.WRITE
+
     # Modifying the save method to update the last modified when saving.
     def save(self, *args, **kwargs):
         self.lastModified = datetime.datetime.now()
@@ -39,6 +41,9 @@ class ToDo(models.Model):
         """
         sharedUserIdList = SharedWith.objects.filter(todo=self).values_list("user_id")
         self.sharedUsers = [User.objects.get(id=userId[0]) for userId in sharedUserIdList]
+
+    def setAccessLevel(self, accessLevel):
+        self.accessLevel = accessLevel
 
 
 class Task(models.Model):
