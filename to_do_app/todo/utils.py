@@ -1,4 +1,4 @@
-from .models import ToDo, Task
+from .models import ToDo, Task, SharedWith
 
 def validate_user_todo(userId, toDoId):
     """
@@ -33,9 +33,15 @@ def validate_user_todo(userId, toDoId):
         Please go back to the home page and try again.
         """
     else:
-         # Making sure the user has access to the todo.
+        # Making sure the user has access to the todo.
         userIdFromToDo = toDo.user.id
-        if userId != userIdFromToDo:
+        # - Checking they either own the todo or...
+        userOwnsToDo = userId == userIdFromToDo
+        # - ... have the todo shared with them.
+        sharedWith = SharedWith.objects.filter(todo=toDoId, user=userId)
+        toDoSharedWithUser = sharedWith.exists()
+
+        if (not userOwnsToDo) and (not toDoSharedWithUser):
             errorMessage = f"""
             You don't have access to this ToDo.
             Please go back to the home page and try a different one.
