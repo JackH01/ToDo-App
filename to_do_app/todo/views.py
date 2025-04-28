@@ -275,8 +275,9 @@ def add_task(request, toDoId):
                 # If the task is unique then add it to the database.
                 if isTaskUnique:
                     position = len(tasks)
+                    user = User.objects.get(id=id)
                     task = Task(title=title, position=position, 
-                        lastModified=datetime.datetime.now(), belongsTo=toDo)
+                        lastModified=datetime.datetime.now(), belongsTo=toDo, createdBy=user)
                     task.save()
 
                     # Redirect back to view todo page.

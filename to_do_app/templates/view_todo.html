@@ -19,7 +19,7 @@
 <h2>Tasks:</h2>
 {% for task in tasks %}
     <h3>{{task.title}}</h3>
-    <p>Created by: {{task.belongsTo.user.username}}</p>
+    <p>Created by: {{task.createdBy.username}}</p>
     <p>Created on: {{task.dateCreated}}</p>
     <p>Last modified: {{task.lastModified}}</p>
     <p>Posiiton: {{task.position}}</p>
