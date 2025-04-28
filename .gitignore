@@ -1,6 +1,9 @@
 # Used to keep track of the dummy login details.
 login_details.txt
 
+# Used to keep track of things to work on.
+todos.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
