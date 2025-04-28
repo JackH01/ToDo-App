@@ -226,6 +226,10 @@ def share_todo(request, toDoId):
         else:
             form = ShareForm()
 
+    # Empty form is the todo has been successfully shared with the user.
+    if errorMessage == None:
+        form = ShareForm()
+
     context = {
         "form": form,
         "toDo": toDo,
