@@ -199,6 +199,7 @@ def share_todo(request, toDoId):
 
                 formData = form.cleaned_data
                 shareUsername = formData["username"]
+                shareAccess = formData["access"]
 
                 # Make sure the user isn't trying to share the todo with themself.
                 isSharingWithSelf = shareUsername == toDo.user.username
@@ -212,7 +213,7 @@ def share_todo(request, toDoId):
                         sharedWithUser = SharedWith.objects.filter(user=shareUser.id, todo=toDo.id)
 
                         if not sharedWithUser: # The query set is empty
-                            sharedWith = SharedWith(user=shareUser, todo=toDo)
+                            sharedWith = SharedWith(user=shareUser, todo=toDo, access=shareAccess)
                             sharedWith.save()
                         else:
                             errorMessage = f"This todo has already been shared with {shareUsername}"
