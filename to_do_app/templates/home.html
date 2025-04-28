@@ -35,13 +35,15 @@
       <a href="edit_todo/{{toDo.id}}">Edit</a>
       <a href="_remove{{toDo.id}}">Remove</a>
       <!-- TODO add remove confirmation using JQuery -->
-      <a href = "share_todo/{{toDo.id}}">Share</a>
-      <p>Shared with:</p>
-      <ul> 
-        {% for user in toDo.sharedUsers %}
-          <li>{{user.username}} <a href="_unshare{{toDo.id}}_{{user.id}}">Unshare</a></li>
-        {% endfor %}
-      </ul>
+      {% if toDo.user == user %}
+        <a href = "share_todo/{{toDo.id}}">Share</a>
+        <p>Shared with:</p>
+        <ul> 
+          {% for user in toDo.sharedUsers %}
+            <li>{{user.username}} <a href="_unshare{{toDo.id}}_{{user.id}}">Unshare</a></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
     {% endif %}
     <!-- TODO maybe remove the share todo link and get a popup using jQuery? -->
   </div>
