@@ -5,9 +5,9 @@ import datetime
 
 from .forms import ToDoForm, TaskForm, ShareForm
 from .models import ToDo, Task, User, SharedWith
-from .utils import validate_user_todo, validate_user_task
+from .utils import validate_user_todo, validate_user_task, validate_write_access
 
-def home(request, errorMessage=None):
+def home(request):
     id = request.user.id
     toDos = None
 
@@ -31,7 +31,6 @@ def home(request, errorMessage=None):
             toDo.updateSharedAccessLevel(id)
     context = {
         "toDos": toDos,
-        "errorMessage": errorMessage,
     }
 
     return render(request, "home.html", context)
@@ -89,6 +88,10 @@ def edit_todo(request, toDoId):
 
     # Checking that the user has access to edit this todo.
     toDo, errorMessage = validate_user_todo(id, toDoId)
+
+    # Checking if the user has write access to the todo.
+    if errorMessage == None:
+        toDo, errorMessage = validate_write_access(id, toDoId)
    
     if errorMessage == None:
         # If this is a POST request, process the form data
@@ -115,23 +118,21 @@ def edit_todo(request, toDoId):
             # Get current todo details
             form = ToDoForm({"title": toDo.title, "desc": toDo.desc})
 
-    context = {
-        "form": form,
-        "errorMessage": errorMessage,
-    }
+        # Go to edit todo page if have write access.
+        context = {
+            "form": form,
+            "errorMessage": errorMessage,
+        }
+        return render(request, "edit_todo.html", context)
 
-    return render(request, "edit_todo.html", context)
+    # If don't have access redirect to home page.
+    else:
+        return redirect("/")
+    
 
 def view_todo(request, toDoId, taskId=None, remove=False):
     id = request.user.id
     tasks = None
-    
-    # TODO let users view shared todos without allowing them to 
-    # remove/edit them? or do we want users to be able to remove/
-    # edit shared todos? Might need to add a permission/column to the SharedWith
-    # file such as read, amend, write? Then add an option to specify this as a drop down
-    # on the share todo page? Would we put the permission in a different database
-    # eg 1 = read, 2 = amend, 3 = write? Then we would just join them?
 
     # Checking that the user has access to view this todo.
     toDo, errorMessage = validate_user_todo(id, toDoId)
@@ -171,16 +172,18 @@ def view_todo(request, toDoId, taskId=None, remove=False):
 def remove_todo(request, toDoId):
     id = request.user.id
     
-    # Checking that the user has access to remove this todo.
+    # Checking that the user has access to this todo.
     toDo, errorMessage = validate_user_todo(id, toDoId)
+
+    # Checking if the user has write access to the todo.
+    if errorMessage == None:
+        toDo, errorMessage = validate_write_access(id, toDoId)
+
     if errorMessage == None:
         toDo = ToDo.objects.get(id=toDoId)
         toDo.delete()
 
-        # Updating the list of toDos.
-        toDos = ToDo.objects.filter(user=id)
-
-    return home(request, errorMessage=errorMessage)
+    return redirect("/")
 
 def share_todo(request, toDoId):
     id = request.user.id
@@ -252,11 +255,13 @@ def unshare_todo(request, toDoId, sharedUserId):
         else:
             sharedWithUser[0].delete()
 
-    return home(request, errorMessage=errorMessage)
+    return redirect("/")
 
 def add_task(request, toDoId):
     form = None
     id = request.user.id
+
+    # TODO dont let user add task if they don't have write access.
 
     # Checking that the user has access to add to this todo.
     toDo, errorMessage = validate_user_todo(id, toDoId)
@@ -306,14 +311,28 @@ def add_task(request, toDoId):
     return render(request, "add_task.html", context)
 
 def remove_task(request, toDoId, taskId):
-    return view_todo(request, toDoId, taskId, remove=True)
+    id = request.user.id
+
+    # Checking if the user has write access to the todo.
+    toDo, errorMessage = validate_write_access(id, toDoId)
+
+    if errorMessage != None:
+        return redirect(f"/view_todo/{toDoId}")
+
+    return view_todo(request, toDoId, taskId, remove=remove)
 
 def edit_task(request, taskId):
     id = request.user.id
+    toDoId = Task.objects.get(id=taskId).belongsTo.id
     errorMessage = None
 
     # Checking that the user has access to this task (and that the task exists).
     task, errorMessage = validate_user_task(id, taskId)
+
+    # Checking if the user has write access to the todo.
+    if errorMessage == None:
+        toDo, errorMessage = validate_write_access(id, toDoId)
+
     if errorMessage == None:
         # If this is a POST request, process the form data
         if request.method == "POST":
@@ -337,22 +356,15 @@ def edit_task(request, taskId):
             # Get current task details
             form = TaskForm({"title": task.title})
 
-    context = {
-        "form": form,
-        "errorMessage": errorMessage,
-        "task": task,
-    }
+        # Go to edit task page if have write access.
+        context = {
+            "form": form,
+            "errorMessage": errorMessage,
+            "task": task,
+        }
 
-    return render(request, "edit_task.html", context)
+        return render(request, "edit_task.html", context)
 
-# TODO add ability to share todos with other users
-# ^ add linker table to allow sharing, only author can share, let
-# ^^ user see all their todos and the ones shared with them.
-
-# TODO add ability to manage who a ToDo is shared with (also
-# ^ view which users any given todo is shared with).
-
-# TODO make it so users need to confirm that they would like
-# ^ a todo to be shared with them (i.e. accept/reject).
-# ^^ or maybe just let them choose to 'un'share todos that
-# ^^^ have been shared with them.
+    # If don't have access redirect to view todo page.
+    else:
+        return redirect(f"/view_todo/{toDoId}")
