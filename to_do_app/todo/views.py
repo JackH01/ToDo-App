@@ -317,11 +317,14 @@ def remove_task(request, toDoId, taskId):
 
     # Checking if the user has write access to the todo.
     toDo, errorMessage = validate_write_access(id, toDoId)
+    if errorMessage == None:
 
-    if errorMessage != None:
-        return redirect(f"/view_todo/{toDoId}")
+     # Checking that the user has access to complete this task.
+        task, errorMessage = validate_user_task(id, taskId)
+        if errorMessage == None:
+            task.delete()
 
-    return view_todo(request, toDoId, taskId, remove=remove)
+    return redirect(f"/view_todo/{toDoId}")
 
 def complete_task(request, toDoId, taskId):
     id = request.user.id
