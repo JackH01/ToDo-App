@@ -129,7 +129,6 @@ def edit_todo(request, toDoId):
     else:
         return redirect("/")
     
-
 def view_todo(request, toDoId, taskId=None, remove=False):
     id = request.user.id
     tasks = None
@@ -137,6 +136,9 @@ def view_todo(request, toDoId, taskId=None, remove=False):
     # Checking that the user has access to view this todo.
     toDo, errorMessage = validate_user_todo(id, toDoId)
     if errorMessage == None and taskId == None:
+        # Update the access level if the todo is shared.
+        toDo.updateSharedAccessLevel(id)
+
         tasks = Task.objects.filter(belongsTo=toDoId)
 
     # If a task id was specified, then we want to mark the task as complete.

@@ -9,34 +9,43 @@
 
 {% else %}
 
-<h2>{{toDo.title}}</h2>
-<p>{{toDo.desc}}</p>
-<p>Created by: {{toDo.user.username}}</p>
-<p>Created on: {{toDo.dateCreated}}</p>
-<p>Last modified: {{toDo.lastModified}}</p>
-<p>Number of Tasks: {{toDo.numOfTasks}}</p>
+    <h2>{{toDo.title}}</h2>
+    <p>{{toDo.desc}}</p>
+    <p>Created by: {{toDo.user.username}}</p>
+    <p>Created on: {{toDo.dateCreated}}</p>
+    <p>Last modified: {{toDo.lastModified}}</p>
+    <p>Number of Tasks: {{toDo.numOfTasks}}</p>
 
-<h2>Tasks:</h2>
-{% for task in tasks %}
-    <h3>{{task.title}}</h3>
-    <p>Created by: {{task.createdBy.username}}</p>
-    <p>Created on: {{task.dateCreated}}</p>
-    <p>Last modified: {{task.lastModified}}</p>
-    <p>Posiiton: {{task.position}}</p>
-    <p>Done: {{task.done}}</p>
-    {% if task.done %}
-        <a href="/view_todo/{{toDo.id}}_complete{{task.id}}">Uncomplete</a>
-        <a href="/view_todo/{{toDo.id}}_remove{{task.id}}">Remove</a> 
-        <!-- TODO ^ Add javascript / JQuery confirmation to this link -->
-    {% else %}
-        <a href="/view_todo/{{toDo.id}}_complete{{task.id}}">Complete</a>
+    <h2>Tasks:</h2>
+    {% for task in tasks %}
+        <h3>{{task.title}}</h3>
+        <p>Created by: {{task.createdBy.username}}</p>
+        <p>Created on: {{task.dateCreated}}</p>
+        <p>Last modified: {{task.lastModified}}</p>
+        <p>Posiiton: {{task.position}}</p>
+        <p>Done: {{task.done}}</p>
+        {% if task.done %}
+            <a href="/view_todo/{{toDo.id}}_complete{{task.id}}">Uncomplete</a>
+        {% else %}
+            <a href="/view_todo/{{toDo.id}}_complete{{task.id}}">Complete</a>
+        {% endif %}
+        <!-- TODO only let user see this if they have write access,
+        take code from home view to check generate access level and replace
+        ToDo.setAccess with ToDo.getAccess, and do all of the calculations
+        in this (even if it is a bit less efficient filter for each
+        todo rather than all at once) to allow for code reuse -->
+        {% if toDo.accessLevel == "W" %}
+            <a href="/view_todo/edit_task/{{task.id}}">Edit</a>
+            <a href="/view_todo/{{toDo.id}}_remove{{task.id}}">Remove</a> 
+            <!-- TODO ^ Add javascript / JQuery confirmation to this link -->
+        {% endif %}
+    {% endfor %}
+
+    <br>
+
+    {% if toDo.accessLevel == "W" %}
+        <a href="add_task/{{toDo.id}}">Add Task</a>
     {% endif %}
-    <a href="/view_todo/edit_task/{{task.id}}">Edit</a>
-{% endfor %}
-
-<br>
-
-<a href="add_task/{{toDo.id}}">Add Task</a>
 
 {% endif %}
 
