@@ -323,6 +323,25 @@ def remove_task(request, toDoId, taskId):
 
     return view_todo(request, toDoId, taskId, remove=remove)
 
+def complete_task(request, toDoId, taskId):
+    id = request.user.id
+    tasks = None
+
+    # Checking that the user has access to view this todo.
+    toDo, errorMessage = validate_user_todo(id, toDoId)
+    if errorMessage == None:
+
+        # Checking that the user has access to complete this task.
+        task, errorMessage = validate_user_task(id, taskId)
+        if errorMessage == None:
+            # Toggling the task as done/not done.
+            task.done = not task.done
+            task.save()
+
+    return redirect(f"/view_todo/{toDoId}")
+
+    
+
 def edit_task(request, taskId):
     id = request.user.id
     toDoId = Task.objects.get(id=taskId).belongsTo.id
