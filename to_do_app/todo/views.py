@@ -129,38 +129,16 @@ def edit_todo(request, toDoId):
     else:
         return redirect("/")
     
-def view_todo(request, toDoId, taskId=None, remove=False):
+def view_todo(request, toDoId):
     id = request.user.id
     tasks = None
 
     # Checking that the user has access to view this todo.
     toDo, errorMessage = validate_user_todo(id, toDoId)
-    if errorMessage == None and taskId == None:
+    if errorMessage == None:
         # Update the access level if the todo is shared.
         toDo.updateSharedAccessLevel(id)
 
-        tasks = Task.objects.filter(belongsTo=toDoId)
-
-    # If a task id was specified, then we want to mark the task as complete.
-    elif errorMessage == None and taskId != None:
-
-        # Checking that the user has access to complete this task.
-        task, errorMessage = validate_user_task(id, taskId)
-        if errorMessage == None:
-            
-            if remove:
-                task.delete()
-            
-            # Toggling the task as done/not done.
-            else:
-                task.done = not task.done
-                task.save()
-
-        # The last modified and (posibly the) number of tasks will have been 
-        # changed, so get the todo from the database again.
-        toDo = ToDo.objects.get(id=toDoId)
-
-        # Get new list of tasks with the current task updated/deleted.
         tasks = Task.objects.filter(belongsTo=toDoId)
 
     context = {
