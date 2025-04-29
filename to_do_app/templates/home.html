@@ -12,12 +12,7 @@
     <button type="submit">Log Out</button>
   </form>
 
-<a href="{% url 'add_todo' %}">Add TODO</a>
-
-{% if errorMessage != None %}
-  <p class="error">{{errorMessage}}</p>
-
-{% else %}
+  <a href="{% url 'add_todo' %}">Add TODO</a>
   
   {% for toDo in toDos %}
 
@@ -47,10 +42,8 @@
     {% endif %}
     <!-- TODO maybe remove the share todo link and get a popup using jQuery? -->
   </div>
-
+    
   {% endfor %}
-
-  {% endif %}
 
 {% else %}
   <p>You are not logged in</p>
