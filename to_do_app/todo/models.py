@@ -46,8 +46,9 @@ class ToDo(models.Model):
         """
         Call to update the access level of a shared todo.
         """
-        sharedWith = SharedWith.objects.filter(todo=self.id, user=user_id)[0]
-        self.accessLevel = sharedWith.access
+        sharedWith = SharedWith.objects.filter(todo=self.id, user=user_id)
+        if sharedWith.exists():
+            self.accessLevel = sharedWith[0].access
 
 
 class Task(models.Model):
