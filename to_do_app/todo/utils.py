@@ -1,4 +1,4 @@
-from .models import ToDo, Task, SharedWith
+from .models import ToDo, Task, SharedWith, AccessLevel
 
 def validate_user_todo(userId, toDoId):
     """
@@ -10,14 +10,14 @@ def validate_user_todo(userId, toDoId):
         - userId: int
         - toDoId: int
 
-    returns: (errorMessage, toDo)
+    returns: (toDo, errorMessage)
+        - toDo
+            - models.ToDo if the todo esixts
+            - None if it doesn't
         - errorMessage
             - A string with the error message if the user cannot access the 
             todo.
             - None if the user should be able to access the todo.
-        - toDo
-            - models.ToDo if the todo esixts
-            - None if it doesn't
     """
 
     errorMessage = None
@@ -59,14 +59,14 @@ def validate_user_task(userId, taskId):
         - userId: int
         - taskId: int
 
-    returns: (errorMessage, task)
+    returns: (task, errorMessage)
+        - task
+            - models.Task if the task esixts
+            - None if it doesn't
         - errorMessage
             - A string with the error message if the user cannot access the 
             task.
             - None if the user should be able to access the task.
-        - task
-            - models.Task if the task esixts
-            - None if it doesn't
     """
 
     errorMessage = None
@@ -91,6 +91,31 @@ def validate_user_task(userId, taskId):
     return (task, errorMessage)
 
 def validate_write_access(userId, toDoId):
-    # NOTE: tasks that belong to a todo have the same access level
-    # as the todo, so only need to write this function once for the task.
-    pass
+    """
+    Used to validate whether a user has write access to a given todo and its
+    tasks.
+    NOTE: todos and their tasks share access levels, so we only need to check
+    the users access to the todo.
+
+    Params:
+        - userId: int
+        - taskId: int
+
+    returns: (todo, errorMessage)
+        - todo
+            - the todo with write access updated.
+        - errorMessage
+            - A string with the error message if the user does not have write 
+            access to the todo.
+            - None otherwise.
+    """
+    todo = ToDo.objects.get(id=toDoId)
+    errorMessage = None
+    # Only need to update the shared access level if the user is not the owner.
+    if todo.user.id != userId:
+        todo.updateSharedAccessLevel(userId)
+        
+        if (todo.accessLevel != AccessLevel.WRITE):
+            errorMessage = "You do not have write access to this ToDo."
+
+    return (todo, errorMessage)
