@@ -111,11 +111,9 @@ def validate_write_access(userId, toDoId):
     """
     todo = ToDo.objects.get(id=toDoId)
     errorMessage = None
-    # Only need to update the shared access level if the user is not the owner.
-    if todo.user.id != userId:
-        todo.updateSharedAccessLevel(userId)
-        
-        if (todo.accessLevel != AccessLevel.WRITE):
-            errorMessage = "You do not have write access to this ToDo."
+
+    todo.updateSharedAccessLevel(userId)
+    if (todo.accessLevel != AccessLevel.WRITE):
+        errorMessage = "You do not have write access to this ToDo."
 
     return (todo, errorMessage)
